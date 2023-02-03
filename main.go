@@ -13,17 +13,17 @@ import (
 var rootsFlag = flag.Bool("roots", false, "Display CAR roots")
 
 func printfErr(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, format, args)
+	fmt.Fprintf(os.Stderr, format, args...)
 }
 
 func main() {
 	flag.Parse()
 
-	if len(flag.Args()) != 2 {
+	if len(flag.Args()) != 1 {
 		printfErr("Usage: ./carls file.car")
 	}
 
-	f, err := os.Open(flag.Args()[1])
+	f, err := os.Open(flag.Args()[0])
 	if err != nil {
 		printfErr(err.Error())
 		os.Exit(1)
