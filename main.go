@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/ipld/go-car"
+	"github.com/ipld/go-car/util"
 )
 
 var rootsFlag = flag.Bool("roots", false, "Display CAR roots")
@@ -30,28 +31,22 @@ func main() {
 	}
 	defer f.Close()
 
-	if *rootsFlag {
+	buf := bufio.NewReader(f)
+	h, err := car.ReadHeader(buf)
+	if err != nil {
+		printfErr(err.Error())
+		os.Exit(1)
+	}
 
-		buf := bufio.NewReader(f)
-		h, err := car.ReadHeader(buf)
-		if err != nil {
-			printfErr(err.Error())
-			os.Exit(1)
-		}
+	if *rootsFlag {
 		for _, root := range h.Roots {
 			fmt.Println(root)
 		}
 		return
 	}
 
-	rdr, err := car.NewCarReader(f)
-	if err != nil {
-		printfErr(err.Error())
-		os.Exit(1)
-	}
-
 	for {
-		b, err := rdr.Next()
+		c, _, err := util.ReadNode(buf)
 		if err == io.EOF {
 			return
 		}
@@ -59,6 +54,6 @@ func main() {
 			printfErr(err.Error())
 			os.Exit(1)
 		}
-		fmt.Println(b.Cid())
+		fmt.Println(c)
 	}
 }
